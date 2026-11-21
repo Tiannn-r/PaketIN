@@ -31,7 +31,9 @@ Dibuat untuk Windows dengan XAMPP.
 (menyusul: migrasi, impor CSV, seeder demo)
 
 ## 7. Keputusan saya
-(menyusul)
+Cara menyimpan harga: Tarif per kg dan ongkir disimpan di tabel paket saat paket di input. Laporan pendapatan menjumlahkan kolom ongkir itu, jadi kalau manager mengubah tarif, maka paket lama tidak akan ikut berubah
+
+Aturan format telepon: Nomor hanya boleh di isi oleh angka, diawali 08, panjangnya 10 sampai 13 digit. Nomor yang berisi huruf, spasi,atau tanda lain, dan kurang dari 10 digit akan ditolak dengan pesan yang jelas.
 
 ## 8. Lembar self-check
 (menyusul: tabel 14 butir)
