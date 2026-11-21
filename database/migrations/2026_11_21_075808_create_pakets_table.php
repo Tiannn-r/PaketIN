@@ -19,7 +19,7 @@ return new class extends Migration
     $table->foreignId('dibuat_oleh')->nullable()->constrained('users');
     $table->string('nama_penerima');
     $table->string('telepon_penerima', 20);
-    $table->text('alamat_penerima');
+    $table->text('alamat_penerima')->nullable();
     $table->string('kota_tujuan');
     $table->unsignedTinyInteger('zona')->nullable();
     $table->boolean('status_zona')->default(false);

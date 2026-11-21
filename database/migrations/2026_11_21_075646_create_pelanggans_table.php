@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->string('telepon', 20)->unique();
+            $table->string('kota')->nullable();
             $table->string('alamat')->nullable();
             $table->timestamps();
         });
