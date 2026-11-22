@@ -10,7 +10,7 @@
             <select name="id_pelanggan">
                 <option value=""> pilih pelanggan </option>
                 @foreach ($daftarPelanggan as $pelanggan)
-                    <option value="{{ $pelanggan->id_pelanggan }}" @selected(old('id_pelanggan') == $pelanggan->id_pelanggan)>
+                    <option value="{{ $pelanggan->id }}"@selected(old('id_pelanggan') === (string) $pelanggan->id)>
                         {{ $pelanggan->nama }} ({{ $pelanggan->telepon }})
                     </option>
                 @endforeach

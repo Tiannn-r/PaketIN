@@ -58,6 +58,9 @@ Route::middleware('auth')->group(function (){
         Route::post('/paket', [PaketController::class, 'store'])->name('paket.store');
         Route::get('/paket/{paket}', [PaketController::class, 'show'])->name('paket.show');
         
+        Route::post('/paket/{paket}/transit', [PaketController::class, 'transit'])->name('paket.transit');
+        Route::post('/paket/{paket}/tugaskan', [PaketController::class, 'tugaskan'])->name('paket.tugaskan');
+        Route::post('/paket/{paket}/retur', [PaketController::class, 'retur'])->name('paket.retur');
     });
 
 

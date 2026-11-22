@@ -10,6 +10,8 @@ use App\Services\PaketService;
 use App\Services\Wilayah;
 use App\Services\WilayahClient;
 use App\Support\Telepon;
+use App\Exceptions\AturanBisnisException;
+use App\Models\Kurir;
 
 class PaketController extends Controller
 {
@@ -29,7 +31,7 @@ class PaketController extends Controller
     public function store(Request $request, Wilayah $wilayah, PaketService $paketService){
 
         $dataPaket = $request->validate([
-            'id_pelanggan' => 'required|exists:pelanggan,id_pelanggan',
+            'id_pelanggan' => 'required|exists:pelanggan,id',
             'nama_penerima' => 'required|string|max:100',
             'telepon_penerima' => ['required', new TeleponValid],
             'alamat_penerima' => 'required|string|max:255',
@@ -67,8 +69,52 @@ class PaketController extends Controller
     }
 
     public function show(Paket $paket){
-        $paket->load(['pelanggan', 'daftarRiwayat']);
+        $paket->load(['pelanggan', 'kurir' ,'daftarRiwayat']);
 
-        return view('paket.struk', compact('paket'));
+        $daftarKurirAktif = Kurir::where('status', true)
+            ->withCount(['daftarPaket as jumlah_paket_dikirim' => fn ($query) => $query->where('status', 'Dikirim')])
+            ->orderBy('kode')
+            ->get();
+
+        return view('paket.struk', compact('paket', 'daftarKurirAktif'));
+    }
+
+     public function transit(Request $request, Paket $paket, PaketService $paketService)
+    {
+        try {
+            $paketService->ubahKeTransit($paket, $request->user()->id, $request->input('catatan'));
+        } catch (AturanBisnisException $error) {
+            return back()->withErrors(['paket' => $error->getMessage()]);
+        }
+
+        return back()->with('sukses', "Paket {$paket->no_resi} sekarang berstatus Transit");
+    }
+
+    public function tugaskan(Request $request, Paket $paket, PaketService $paketService)
+    {
+        $dataForm = $request->validate([
+            'id_kurir' => 'required|exists:kurir,id',
+            'catatan'  => 'nullable|string|max:255',
+        ]);
+
+            $kurir = Kurir::findOrFail($dataForm['id_kurir']);
+        try {
+            $paketService->tugaskan($paket, $kurir, $request->user()->id, $dataForm['catatan'] ?? null);
+        } catch (AturanBisnisException $error) {
+            return back()->withErrors(['paket' => $error->getMessage()]);
+        }
+
+        return back()->with('sukses', "Paket {$paket->no_resi} ditugaskan ke {$kurir->kode} dan berstatus Dikirim");
+    }
+
+    public function retur(Request $request, Paket $paket, PaketService $paketService)
+    {
+        try {
+            $paketService->returkan($paket, $request->user()->id, $request->input('catatan'));
+        } catch (AturanBisnisException $error) {
+            return back()->withErrors(['paket' => $error->getMessage()]);
+        }
+
+        return back()->with('sukses', "Paket {$paket->no_resi} diubah menjadi Retur");
     }
 }

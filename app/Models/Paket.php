@@ -17,21 +17,21 @@ class Paket extends Model
     ];
 
     protected $casts = [
-        'status_zona_manual' => 'boolean',
+        'status_zona' => 'boolean',
         'status_pembayaran' => 'boolean',
         'perlu_verifikasi' => 'boolean',
         'tanggal_masuk' => 'date',
     ];
 
     public function pelanggan(){
-        return $this->belongsTo(Pelanggan::class, 'id_pelanggan');
+        return $this->belongsTo(Pelanggan::class, 'id_pelanggan', 'id');
     }
 
     public function kurir(){
-        return $this->belongsTo(Kurir::class, 'id_kurir');
+        return $this->belongsTo(Kurir::class, 'id_kurir', 'id');
     }
 
     public function daftarRiwayat(){
-        return $this->hasMany(RiwayatStatus::class, 'id_paket');
+        return $this->hasMany(RiwayatStatus::class, 'id_paket')->orderBy('id');
     }
 }

@@ -25,5 +25,60 @@
         <tr><td>Status</td><td>{{ $paket->status }}</td></tr>
     </table>
 
+    <p>Kurir: {{ $paket->kurir ? $paket->kurir->kode . ' - ' . $paket->kurir->nama : '-' }}</p>
+    <p>Jumlah gagal kirim: {{ $paket->jumlah_gagal }}</p>
+
+    <h2>Tindakan</h2>
+    @if ($paket->status === 'Diterima')
+        <form method="POST" action="{{ route('paket.transit', $paket) }}">
+            @csrf
+            <input type="text" name="catatan" placeholder="Catatan (opsional)">
+            <button type="submit">Proses ke Transit</button>
+        </form>
+
+    @elseif ($paket->status === 'Transit' || ($paket->status === 'Gagal Kirim' && $paket->jumlah_gagal < 2))
+        <form method="POST" action="{{ route('paket.tugaskan', $paket) }}">
+            @csrf
+            <select name="id_kurir">
+                <option value=""> pilih kurir </option>
+                @foreach ($daftarKurirAktif as $kurir)
+                    <option value="{{ $kurir->id }}">
+                        {{ $kurir->kode }} - {{ $kurir->nama }} ({{ $kurir->jumlah_paket_dikirim }} paket Dikirim)
+                    </option>
+                @endforeach
+            </select>
+            <input type="text" name="catatan" placeholder="Catatan (opsional)">
+            <button type="submit">Tugaskan</button>
+        </form>
+
+    @elseif ($paket->status === 'Gagal Kirim')
+        <p>Paket sudah gagal 2 kali, tidak bisa dikirim ulang. Hanya boleh diubah menjadi Retur.</p>
+        <form method="POST" action="{{ route('paket.retur', $paket) }}">
+            @csrf
+            <input type="text" name="catatan" placeholder="Catatan (opsional)">
+            <button type="submit">Ubah ke Retur</button>
+        </form>
+
+    @elseif ($paket->status === 'Dikirim')
+        <p>Menunggu kurir melaporkan hasil pengantaran.</p>
+
+    @else
+        <p>Status {{ $paket->status }} sudah final dan tidak bisa diubah lagi.</p>
+    @endif
+
+    <h2>Riwayat status</h2>
+    <table border="1" cellpadding="6">
+        <tr><th>Waktu</th><th>Dari</th><th>Ke</th><th>Pelaku</th><th>Catatan</th></tr>
+        @foreach ($paket->daftarRiwayat as $riwayat)
+            <tr>
+                <td>{{ $riwayat->dibuat_pada->format('d-m-Y H:i') ?? '-' }}</td>
+                <td>{{ $riwayat->status_dari ?? '-' }}</td>
+                <td>{{ $riwayat->status_ke }}</td>
+                <td>{{ $riwayat->tipe_pelaku }}: {{ $riwayat->nama_pelaku }}</td>
+                <td>{{ $riwayat->catatan }}</td>
+            </tr>
+        @endforeach
+    </table>
+
     <p><a href="{{ route('paket.create') }}">Input paket lagi</a> | <a href="{{ route('paket.index') }}">Daftar paket</a></p>
 @endsection
