@@ -10,6 +10,9 @@
         <a href="{{ route('dashboard') }}">Dashboard</a> |
         <a href="{{ route('pelanggan.index') }}">Pelanggan</a> |
         <a href="{{ route('kurir.index') }}">Kurir</a> |
+        @if (request()->user()->role === 'admin')
+            <a href="{{ route('paket.index') }}">Paket</a> |
+        @endif
         <a href="{{ route('password.ganti') }}">Ganti password</a> |
         <form method="POST" action="{{ route('logout') }}" style="display:inline">
             @csrf

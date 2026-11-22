@@ -8,7 +8,7 @@ class Resi extends Model
 {
     protected $table = 'resi';
     protected $primaryKey = 'tanggal';
-    public $increment = false;
+    public $incrementing = false;
     protected $keyType = 'string';
     public $timestamps = false;
 

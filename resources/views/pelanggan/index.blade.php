@@ -19,7 +19,7 @@
                 <td>{{ $p->alamat }}</td>
                 <td>{{ $p->kota }}</td>
                 @if (request()->user()->role === 'admin')
-                    <td><a href="{{ route('pelanggan.edit', $p) }}">Ubah</a></td>
+                    <td><a href="{{ route('pelanggan.index', $p) }}">Ubah</a></td>
                 @endif
             </tr>
         @endforeach

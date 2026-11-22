@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'wilayah' => [
+        'url' => env('WILAYAH_URL'),
+        'key' => env('WILAYAH_API_KEY'),
+    ],
+
 ];

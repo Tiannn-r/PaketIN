@@ -3,6 +3,7 @@
 use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KurirController;
+use App\Http\Controllers\PaketController;
 use App\Models\Kurir;
 use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Facades\Route;
@@ -40,8 +41,8 @@ Route::middleware('auth')->group(function (){
         //pelanggan
         Route::get('/pelanggan/tambah', [PelangganController::class, 'create'])->name('pelanggan.create');
         Route::post('/pelanggan', [PelangganController::class, 'store'])->name('pelanggan.store');
-        Route::get('/pelanggan{pelanggan}/ubah', [PelangganController::class, 'edit'])->name('pelanggan.edit');
-        Route::put('/pelanggan{pelanggan}', [PelangganController::class, 'update'])->name('pelanggan.update');
+        Route::get('/pelanggan/{pelanggan}/ubah', [PelangganController::class, 'edit'])->name('pelanggan.edit');
+        Route::put('/pelanggan/{pelanggan}', [PelangganController::class, 'update'])->name('pelanggan.update');
 
         //kurir
         Route::get('/kurir/tambah', [KurirController::class, 'create'])->name('kurir.create');
@@ -51,6 +52,12 @@ Route::middleware('auth')->group(function (){
         Route::post('/kurir/{kurir}/nonaktifkan', [KurirController::class, 'nonaktifkan'])->name('kurir.nonaktifkan');
         Route::post('/kurir/{kurir}/aktifkan', [KurirController::class, 'aktifkan'])->name('kurir.aktifkan');
         Route::post('/kurir/{kurir}/reset-password', [KurirController::class, 'resetPassword'])->name('kurir.reset');
+
+        Route::get('/paket', [PaketController::class, 'index'])->name('paket.index');
+        Route::get('/paket/tambah', [PaketController::class, 'create'])->name('paket.create');
+        Route::post('/paket', [PaketController::class, 'store'])->name('paket.store');
+        Route::get('/paket/{paket}', [PaketController::class, 'show'])->name('paket.show');
+        
     });
 
 

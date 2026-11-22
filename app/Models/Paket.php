@@ -6,5 +6,32 @@ use Illuminate\Database\Eloquent\Model;
 
 class Paket extends Model
 {
-    protected $table = 'paket';
+   protected $table = 'paket';
+
+    protected $fillable = [
+        'no_resi', 'id_pelanggan', 'id_kurir', 'dibuat_oleh',
+        'nama_penerima', 'telepon_penerima', 'alamat_penerima', 'kota_tujuan',
+        'zona', 'status_zona', 'berat_asli', 'berat_bulat', 'layanan',
+        'tarif_per_kg', 'ongkir', 'status_pembayaran', 'nilai_cod', 'biaya_cod',
+        'status', 'jumlah_gagal', 'perlu_verifikasi', 'tanggal_masuk',
+    ];
+
+    protected $casts = [
+        'status_zona_manual' => 'boolean',
+        'status_pembayaran' => 'boolean',
+        'perlu_verifikasi' => 'boolean',
+        'tanggal_masuk' => 'date',
+    ];
+
+    public function pelanggan(){
+        return $this->belongsTo(Pelanggan::class, 'id_pelanggan');
+    }
+
+    public function kurir(){
+        return $this->belongsTo(Kurir::class, 'id_kurir');
+    }
+
+    public function daftarRiwayat(){
+        return $this->hasMany(RiwayatStatus::class, 'id_paket');
+    }
 }

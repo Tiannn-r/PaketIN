@@ -51,8 +51,7 @@ class PelangganController extends Controller
 
     public function validasi(Request $request): array{
         $data = $request->validate([
-            'nama' => 'required|string
-            |max:100',
+            'nama' => 'required|string|max:100',
             'telepon' => ['required', new TeleponValid],
             'alamat' => 'nullable|string|max:255',
             'kota' => 'nullable|string|max:100',
