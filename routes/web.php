@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KurirController;
 use App\Http\Controllers\PaketController;
 use App\Http\Controllers\SetoranController;
+use App\Http\Controllers\CekResiController;
 use App\Models\Kurir;
 use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,9 @@ use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 Route::get('/login', [AuthController::class, 'formlogin']) ->name('login');
 Route::post('/login', [AuthController::class, 'login']);
+
+Route::get('/cek-resi', [CekResiController::class, 'index'])->name('resi.index');
+Route::post('/cek-resi', [CekResiController::class, 'cek'])->name('resi.cek');
 
 Route::middleware('auth')->group(function (){
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
