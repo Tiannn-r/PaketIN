@@ -6,6 +6,8 @@ use App\Http\Controllers\KurirController;
 use App\Http\Controllers\PaketController;
 use App\Http\Controllers\SetoranController;
 use App\Http\Controllers\CekResiController;
+use App\Http\Controllers\TarifController;
+use App\Http\Controllers\LaporanController;
 use App\Models\Kurir;
 use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Facades\Route;
@@ -33,7 +35,10 @@ Route::middleware('auth')->group(function (){
     });
     
     Route::middleware('role:manager')->prefix('manager')->group(function(){
-        Route::get('/dashboard', fn () => view('manager.dashboard')) ->name('manager.dashboard');
+    Route::get('/dashboard', fn () => view('manager.dashboard'))->name('manager.dashboard');
+    Route::get('/tarif', [TarifController::class, 'index'])->name('manager.tarif.index');
+    Route::put('/tarif/{tarif}', [TarifController::class, 'update'])->name('manager.tarif.update');
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('manager.laporan.index');
     });
 
     Route::middleware('role:admin,manager')->group(function(){

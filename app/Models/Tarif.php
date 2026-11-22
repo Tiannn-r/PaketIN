@@ -7,5 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Tarif extends Model
 {
     protected $table = 'tarif';
-    protected $fillable = ['zone', 'nama_zona', 'tarif_per_kg', 'diubah_oleh'];
+    protected $primaryKey = 'zona';
+    public $incrementing = false;
+    protected $keyType = 'int';
+    protected $fillable = ['zona', 'nama_zona', 'tarif_per_kg', 'diubah_oleh'];
 }

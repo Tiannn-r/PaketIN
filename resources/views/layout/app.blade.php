@@ -9,9 +9,9 @@
     <nav>
         <a href="{{ route('dashboard') }}">Dashboard</a> |
         <a href="{{ route('pelanggan.index') }}">Pelanggan</a> |
-        <a href="{{ route('kurir.index') }}">Kurir</a> |
-        @if (request()->user()->role === 'admin')
-            <a href="{{ route('paket.index') }}">Paket</a> |
+        <a href="{{ route('kurir.index') }}">Kurir</a> |            @if (request()->user()->role === 'manager')
+        <a href="{{ route('manager.tarif.index') }}">Pengaturan Tarif</a> |
+        <a href="{{ route('manager.laporan.index') }}">Laporan</a> |
         @endif
         <a href="{{ route('password.ganti') }}">Ganti password</a> |
         <form method="POST" action="{{ route('logout') }}" style="display:inline">
