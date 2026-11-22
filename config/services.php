@@ -40,4 +40,8 @@ return [
         'key' => env('WILAYAH_API_KEY'),
     ],
 
+    'kurir' => [
+        'password_sementara' => env('KURIR_PASSWORD_SEMENTARA', 'Kurir12345'),
+    ],
+
 ];

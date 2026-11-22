@@ -7,28 +7,46 @@
 (tempel bagian teknologi yang sudah jadi)
 
 ## 3. Cara menjalankan server
+
 Dibuat untuk Windows dengan XAMPP.
-1. Salin repositori, lalu `composer install`
-2. Salin `.env.example` menjadi `.env`, atur database dan alamat serta API key Pusat Wilayah
-3. `php artisan key:generate`
-4. Buat database `paketin` di phpMyAdmin
-5. `php artisan migrate`
-6. Impor data awal CSV (perintah menyusul)
-7. Seeder: `php artisan db:seed`
-8. `php artisan serve`
+
+1. Salin repositori, lalu jalankan `composer install`.
+2. Salin `.env.example` menjadi `.env`.
+3. Atur koneksi database dan konfigurasi API Pusat Wilayah.
+4. Jalankan `php artisan key:generate`.
+5. Buat database `paketin` di phpMyAdmin.
+6. Jalankan `php artisan migrate`.
+7. Import data awal menggunakan `php artisan db:seed`.
+8. Jalankan data demonstrasi menggunakan `php artisan db:seed --class=DemoSeeder`.
+9. Jalankan `php artisan serve`.
+
+Catatan: DemoSeeder dijalankan terpisah dari import data awal. Jangan menggunakan `migrate:fresh` pada database yang sudah berisi data.
 
 ## 4. Cara memasang APK
 (menyusul)
 
 ## 5. Akun uji
-| Peran | Username | Password |
+
+| Peran | Username | Password awal |
 |---|---|---|
-| Admin | admin | admin12345 |
-| Manajer | manajer | manajer12345 |
-| Kurir | (menyusul) | (menyusul) |
+| Admin | admin | admin123 |
+| Manajer | manager | manager123 |
+| Kurir | KUR-01 sampai KUR-08 | Kurir12345 |
+
+Password kurir merupakan password sementara dan harus diganti saat login pertama.
+Password akun yang sudah ada tidak otomatis diubah oleh StafSeeder.
 
 ## 6. Letak berkas
-(menyusul: migrasi, impor CSV, seeder demo)
+
+- Data CSV: `database/seeders/data/`
+- Pembaca CSV: `app/Services/CsvimportService.php`
+- Normalisasi telepon: `app/Support/Telepon.php`
+- API wilayah: `app/Services/Wilayah.php`
+- Import kurir: `database/seeders/KurirSeeder.php`
+- Import pelanggan: `database/seeders/PelangganSeeder.php`
+- Import paket historis: `database/seeders/PaketHistorisSeeder.php`
+- Pengaturan urutan import: `database/seeders/DatabaseSeeder.php`
+- Data demonstrasi: `database/seeders/DemoSeeder.php`
 
 ## 7. Keputusan saya
 Cara menyimpan harga: Tarif per kg dan ongkir disimpan di tabel paket saat paket di input. Laporan pendapatan menjumlahkan kolom ongkir itu, jadi kalau manager mengubah tarif, maka paket lama tidak akan ikut berubah
