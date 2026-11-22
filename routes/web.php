@@ -4,6 +4,7 @@ use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KurirController;
 use App\Http\Controllers\PaketController;
+use App\Http\Controllers\SetoranController;
 use App\Models\Kurir;
 use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Facades\Route;
@@ -61,6 +62,8 @@ Route::middleware('auth')->group(function (){
         Route::post('/paket/{paket}/transit', [PaketController::class, 'transit'])->name('paket.transit');
         Route::post('/paket/{paket}/tugaskan', [PaketController::class, 'tugaskan'])->name('paket.tugaskan');
         Route::post('/paket/{paket}/retur', [PaketController::class, 'retur'])->name('paket.retur');
+
+        Route::post('/paket/{paket}/setoran', [SetoranController::class, 'store'])->name('paket.setoran');
     });
 
 

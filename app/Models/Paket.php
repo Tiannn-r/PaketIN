@@ -34,4 +34,8 @@ class Paket extends Model
     public function daftarRiwayat(){
         return $this->hasMany(RiwayatStatus::class, 'id_paket')->orderBy('id');
     }
+
+    public function setoran(){
+        return $this->hasOne(Setoran::class, 'id_paket', 'id');
+    }
 }

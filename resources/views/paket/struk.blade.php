@@ -25,6 +25,27 @@
         <tr><td>Status</td><td>{{ $paket->status }}</td></tr>
     </table>
 
+    @if ($paket->status_pembayaran)
+        <h2>Setoran COD</h2>
+        @if ($paket->setoran)
+            <p>Status: Sudah disetor</p>
+            <p>Jumlah setoran: Rp{{ number_format($paket->setoran->jumlah, 0, ',', '.') }}</p>
+            <p>Waktu setoran: {{ $paket->setoran->disetor_pada->format('d-m-Y H:i') }}</p>
+        @else
+            <p>Status: Belum disetor</p>
+            <p>Jumlah yang harus disetor: Rp{{ number_format($paket->nilai_cod, 0, ',', '.') }}</p>
+
+            @if ($paket->status === 'Terkirim')
+                <form method="POST" action="{{ route('paket.setoran', $paket) }}">
+                    @csrf
+                    <button type="submit">Catat Setoran COD</button>
+                </form>
+            @else
+                <p>Setoran hanya dapat dicatat setelah paket berstatus Terkirim.</p>
+            @endif
+        @endif
+    @endif
+
     <p>Kurir: {{ $paket->kurir ? $paket->kurir->kode . ' - ' . $paket->kurir->nama : '-' }}</p>
     <p>Jumlah gagal kirim: {{ $paket->jumlah_gagal }}</p>
 

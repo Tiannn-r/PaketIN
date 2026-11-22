@@ -69,7 +69,7 @@ class PaketController extends Controller
     }
 
     public function show(Paket $paket){
-        $paket->load(['pelanggan', 'kurir' ,'daftarRiwayat']);
+        $paket->load(['pelanggan', 'kurir' ,'daftarRiwayat', 'setoran']);
 
         $daftarKurirAktif = Kurir::where('status', true)
             ->withCount(['daftarPaket as jumlah_paket_dikirim' => fn ($query) => $query->where('status', 'Dikirim')])
