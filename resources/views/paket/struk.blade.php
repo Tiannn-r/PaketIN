@@ -1,105 +1,228 @@
 @extends('layout.app')
-@section('judul', 'Struk Paket')
+@section('judul', 'Detail Paket')
 @section('isi')
-    <h1>Paket Tersimpan</h1>
-    <h2>Nomor resi: {{ $paket->no_resi }}</h2>
 
-    <table border="1" cellpadding="6">
-        <tr><td>Pengirim</td><td>{{ $paket->pelanggan->nama }}</td></tr>
-        <tr><td>Penerima</td><td>{{ $paket->nama_penerima }} ({{ $paket->telepon_penerima }})</td></tr>
-        <tr><td>Alamat</td><td>{{ $paket->alamat_penerima }}</td></tr>
-        <tr><td>Kota tujuan</td>
-            <td>{{ $paket->kota_tujuan }}, Zona {{ $paket->zona }}@if ($paket->status_zona) (zona manual)@endif</td></tr>
-        <tr><td>Berat</td><td>{{ $paket->berat_asli }} kg, dibulatkan menjadi {{ $paket->berat_bulat }} kg</td></tr>
-        <tr><td>Layanan</td><td>{{ $paket->layanan }}</td></tr>
-        <tr><td>Ongkir</td><td>Rp{{ number_format($paket->ongkir, 0, ',', '.') }}</td></tr>
+    <section class="customer-page package-detail-page">
+        {{-- HEADER --}}
+        <div class="customer-heading">
+            <div>
+                <h1>Detail Paket</h1>
+                <p>Nomor Resi: <strong>{{ $paket->no_resi }}</strong></p>
+            </div>
+            @if ($paket->status === 'Diterima')
+                <button type="button" class="package-action-button is-primary" data-open-package-modal="transitModal">Proses ke Transit</button>
+            @elseif ($paket->status === 'Transit' || ($paket->status === 'Gagal Kirim' && $paket->jumlah_gagal < 2))
+                <button type="button" class="package-action-button is-primary" data-open-package-modal="tugaskanModal">Pilih Kurir</button>
+            @elseif ($paket->status === 'Gagal Kirim' && $paket->jumlah_gagal >= 2)
+                <button type="button" class="package-action-button is-primary" data-open-package-modal="returModal">Ubah ke Retur</button>
+            @endif
+        </div>
+
+        {{-- INFORMASI PENGIRIMAN --}}
+        <section class="package-detail-card">
+            <div class="package-detail-heading">
+                <h2>Informasi Pengiriman</h2>
+                <span class="package-status">{{ $paket->status }}</span>
+                @if ($paket->perlu_verifikasi)<span class="badge-verifikasi">Perlu verifikasi (berat/zona belum lengkap)</span>@endif
+            </div>
+            <div class="package-detail-grid">
+                <div class="package-detail-item"><span>Nomor Resi</span><strong>{{ $paket->no_resi }}</strong></div>
+                <div class="package-detail-item"><span>Pengirim</span><strong>{{ $paket->pelanggan->nama }}</strong></div>
+                <div class="package-detail-item"><span>Penerima</span><strong>{{ $paket->nama_penerima }}</strong></div>
+                <div class="package-detail-item"><span>Telepon Penerima</span><strong>{{ $paket->telepon_penerima }}</strong></div>
+                <div class="package-detail-item"><span>Alamat Penerima</span><strong>{{ $paket->alamat_penerima }}</strong></div>
+                <div class="package-detail-item"><span>Kota Tujuan</span><strong>{{ $paket->kota_tujuan }}</strong></div>
+                <div class="package-detail-item"><span>Zona</span><strong>{{ $paket->zona ?? '-' }} @if ($paket->status_zona)(Manual)@endif</strong></div>
+                <div class="package-detail-item"><span>Layanan</span><strong>{{ $paket->layanan }}</strong></div>
+                <div class="package-detail-item"><span>Berat Asli</span><strong>{{ $paket->berat_asli !== null ? $paket->berat_asli . ' kg' : '-' }}</strong></div>
+                <div class="package-detail-item"><span>Berat Dibulatkan</span><strong>{{ $paket->berat_bulat !== null ? $paket->berat_bulat . ' kg' : '-' }}</strong></div>
+                <div class="package-detail-item"><span>Kurir</span><strong>{{ $paket->kurir ? $paket->kurir->kode . ' - ' . $paket->kurir->nama : '-' }}</strong></div>
+                <div class="package-detail-item"><span>Jumlah Gagal Kirim</span><strong>{{ $paket->jumlah_gagal }}</strong></div>
+            </div>
+        </section>
+
+        {{-- RINCIAN BIAYA --}}
+        <section class="package-detail-card package-cost-card">
+            <div class="package-detail-heading"><h2>Rincian Biaya</h2></div>
+            <div class="package-detail-grid">
+                <div class="package-detail-item"><span>Ongkir</span><strong>{{ $paket->ongkir !== null ? 'Rp' . number_format($paket->ongkir, 0, ',', '.') : 'Belum dihitung' }}</strong></div>
+                @if ($paket->status_pembayaran)
+                    <div class="package-detail-item"><span>Biaya COD</span><strong>Rp{{ number_format($paket->biaya_cod, 0, ',', '.') }}</strong></div>
+                @endif
+                <div class="package-detail-item package-detail-total"><span>Dibayar Pengirim di Loket</span><strong>Rp{{ number_format(($paket->ongkir ?? 0) + $paket->biaya_cod, 0, ',', '.') }}</strong></div>
+                @if ($paket->status_pembayaran)
+                    <div class="package-detail-item"><span>Nilai COD dari Penerima</span><strong>Rp{{ number_format($paket->nilai_cod, 0, ',', '.') }}</strong></div>
+                @endif
+            </div>
+        </section>
+
+        {{-- SETORAN COD --}}
         @if ($paket->status_pembayaran)
-            <tr><td>Biaya COD</td><td>Rp{{ number_format($paket->biaya_cod, 0, ',', '.') }}</td></tr>
+            <section class="package-detail-card package-cod-card">
+                <div class="package-detail-heading">
+                    <h2>Setoran COD</h2>
+                    <span class="package-status">{{ $paket->setoran ? 'Sudah Disetor' : 'Belum Disetor' }}</span>
+                </div>
+                @if ($paket->setoran)
+                    <div class="package-detail-grid">
+                        <div class="package-detail-item"><span>Jumlah Setoran</span><strong>Rp{{ number_format($paket->setoran->jumlah, 0, ',', '.') }}</strong></div>
+                        <div class="package-detail-item"><span>Waktu Setoran</span><strong>{{ $paket->setoran->disetor_pada->format('d-m-Y H:i') }}</strong></div>
+                    </div>
+                @else
+                    <div class="package-detail-grid">
+                        <div class="package-detail-item"><span>Jumlah yang Harus Disetor</span><strong>Rp{{ number_format($paket->nilai_cod, 0, ',', '.') }}</strong></div>
+                    </div>
+                    @if ($paket->status === 'Terkirim')
+                        <div class="package-detail-actions">
+                            <button type="button" class="package-action-button is-primary" data-open-package-modal="setoranModal">Catat Setoran COD</button>
+                        </div>
+                    @else
+                        <p class="package-detail-note">Setoran hanya dapat dicatat setelah paket berstatus Terkirim.</p>
+                    @endif
+                @endif
+            </section>
         @endif
-        <tr><td><strong>Dibayar pengirim di loket</strong></td>
-            <td><strong>Rp{{ number_format($paket->ongkir + $paket->biaya_cod, 0, ',', '.') }}</strong></td></tr>
-        @if ($paket->status_pembayaran)
-            <tr><td>Nilai COD (ditagih kurir ke penerima)</td>
-                <td>Rp{{ number_format($paket->nilai_cod, 0, ',', '.') }}</td></tr>
-        @endif
-        <tr><td>Status</td><td>{{ $paket->status }}</td></tr>
-    </table>
 
-    @if ($paket->status_pembayaran)
-        <h2>Setoran COD</h2>
-        @if ($paket->setoran)
-            <p>Status: Sudah disetor</p>
-            <p>Jumlah setoran: Rp{{ number_format($paket->setoran->jumlah, 0, ',', '.') }}</p>
-            <p>Waktu setoran: {{ $paket->setoran->disetor_pada->format('d-m-Y H:i') }}</p>
-        @else
-            <p>Status: Belum disetor</p>
-            <p>Jumlah yang harus disetor: Rp{{ number_format($paket->nilai_cod, 0, ',', '.') }}</p>
+        {{-- RIWAYAT STATUS --}}
+        <section class="package-detail-card package-history-card">
+            <div class="package-detail-heading"><h2>Riwayat Status</h2></div>
+            <div data-pagination data-page-size="10">
+                <div class="customer-table-wrap">
+                    <table class="customer-table package-history-table">
+                        <thead>
+                            <tr><th>Waktu</th><th>Dari</th><th>Ke</th><th>Pelaku</th><th>Catatan</th></tr>
+                        </thead>
+                        <tbody data-page-items>
+                            @forelse ($paket->daftarRiwayat as $riwayat)
+                                <tr data-page-item>
+                                    <td>{{ $riwayat->dibuat_pada?->format('d-m-Y H:i') ?? '-' }}</td>
+                                    <td>{{ $riwayat->status_dari ?? '-' }}</td>
+                                    <td>{{ $riwayat->status_ke }}</td>
+                                    <td>{{ $riwayat->tipe_pelaku }}: {{ $riwayat->nama_pelaku }}</td>
+                                    <td>{{ $riwayat->catatan ?? '-' }}</td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="5" class="customer-empty">Belum ada riwayat status.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-pagination" data-pagination-controls></div>
+            </div>
+        </section>
 
-            @if ($paket->status === 'Terkirim')
+        {{-- TOMBOL BAGIAN BAWAH --}}
+        <div class="package-footer-links">
+            <a href="{{ route('paket.index') }}" class="package-action-button">Daftar Paket</a>
+        </div>
+    </section>
+
+    {{-- MODAL SETORAN COD --}}
+    @if ($paket->status_pembayaran && !$paket->setoran && $paket->status === 'Terkirim')
+        <div class="form-modal-backdrop" id="setoranModal" data-package-action-modal data-open-on-load="{{ $errors->any() ? 'true' : 'false' }}" aria-hidden="true" hidden>
+            <section class="form-modal-card" role="dialog" aria-modal="true" aria-labelledby="setoranModalTitle">
+                <div class="form-modal-header">
+                    <div><h2 id="setoranModalTitle">Catat Setoran COD</h2><p>Konfirmasi setoran untuk paket ini.</p></div>
+                </div>
                 <form method="POST" action="{{ route('paket.setoran', $paket) }}">
                     @csrf
-                    <button type="submit">Catat Setoran COD</button>
+                    <p class="package-modal-note">Jumlah setoran: <strong>Rp{{ number_format($paket->nilai_cod, 0, ',', '.') }}</strong></p>
+                    <div class="form-modal-actions">
+                        <button type="button" class="form-modal-cancel" data-close-package-modal>Batal</button>
+                        <button type="submit" class="form-modal-submit">Catat Setoran</button>
+                    </div>
                 </form>
-            @else
-                <p>Setoran hanya dapat dicatat setelah paket berstatus Terkirim.</p>
-            @endif
-        @endif
+            </section>
+        </div>
     @endif
 
-    <p>Kurir: {{ $paket->kurir ? $paket->kurir->kode . ' - ' . $paket->kurir->nama : '-' }}</p>
-    <p>Jumlah gagal kirim: {{ $paket->jumlah_gagal }}</p>
-
-    <h2>Tindakan</h2>
+    {{-- MODAL PROSES TRANSIT --}}
     @if ($paket->status === 'Diterima')
-        <form method="POST" action="{{ route('paket.transit', $paket) }}">
-            @csrf
-            <input type="text" name="catatan" placeholder="Catatan (opsional)">
-            <button type="submit">Proses ke Transit</button>
-        </form>
-
-    @elseif ($paket->status === 'Transit' || ($paket->status === 'Gagal Kirim' && $paket->jumlah_gagal < 2))
-        <form method="POST" action="{{ route('paket.tugaskan', $paket) }}">
-            @csrf
-            <select name="id_kurir">
-                <option value=""> pilih kurir </option>
-                @foreach ($daftarKurirAktif as $kurir)
-                    <option value="{{ $kurir->id }}">
-                        {{ $kurir->kode }} - {{ $kurir->nama }} ({{ $kurir->jumlah_paket_dikirim }} paket Dikirim)
-                    </option>
-                @endforeach
-            </select>
-            <input type="text" name="catatan" placeholder="Catatan (opsional)">
-            <button type="submit">Tugaskan</button>
-        </form>
-
-    @elseif ($paket->status === 'Gagal Kirim')
-        <p>Paket sudah gagal 2 kali, tidak bisa dikirim ulang. Hanya boleh diubah menjadi Retur.</p>
-        <form method="POST" action="{{ route('paket.retur', $paket) }}">
-            @csrf
-            <input type="text" name="catatan" placeholder="Catatan (opsional)">
-            <button type="submit">Ubah ke Retur</button>
-        </form>
-
-    @elseif ($paket->status === 'Dikirim')
-        <p>Menunggu kurir melaporkan hasil pengantaran.</p>
-
-    @else
-        <p>Status {{ $paket->status }} sudah final dan tidak bisa diubah lagi.</p>
+        <div class="form-modal-backdrop" id="transitModal" data-package-action-modal data-open-on-load="{{ $errors->any() ? 'true' : 'false' }}" aria-hidden="true" hidden>
+            <section class="form-modal-card" role="dialog" aria-modal="true" aria-labelledby="transitModalTitle">
+                <div class="form-modal-header">
+                    <div><h2 id="transitModalTitle">Proses ke Transit</h2><p>Proses paket ke tahap Transit.</p></div>
+                </div>
+                <form method="POST" action="{{ route('paket.transit', $paket) }}">
+                    @csrf
+                    @error('paket')
+                        <p class="package-form-error">{{ $message }}</p>
+                    @enderror
+                    <div class="form-modal-field">
+                        <label for="catatanTransit">Catatan (opsional)</label>
+                        <input type="text" id="catatanTransit" name="catatan" value="{{ old('catatan') }}" placeholder="Masukkan catatan">
+                    </div>
+                    <div class="form-modal-actions">
+                        <button type="button" class="form-modal-cancel" data-close-package-modal>Batal</button>
+                        <button type="submit" class="form-modal-submit">Proses Transit</button>
+                    </div>
+                </form>
+            </section>
+        </div>
     @endif
 
-    <h2>Riwayat status</h2>
-    <table border="1" cellpadding="6">
-        <tr><th>Waktu</th><th>Dari</th><th>Ke</th><th>Pelaku</th><th>Catatan</th></tr>
-        @foreach ($paket->daftarRiwayat as $riwayat)
-            <tr>
-                <td>{{ $riwayat->dibuat_pada->format('d-m-Y H:i') ?? '-' }}</td>
-                <td>{{ $riwayat->status_dari ?? '-' }}</td>
-                <td>{{ $riwayat->status_ke }}</td>
-                <td>{{ $riwayat->tipe_pelaku }}: {{ $riwayat->nama_pelaku }}</td>
-                <td>{{ $riwayat->catatan }}</td>
-            </tr>
-        @endforeach
-    </table>
+    {{-- MODAL PENUGASAN KURIR --}}
+    @if ($paket->status === 'Transit' || ($paket->status === 'Gagal Kirim' && $paket->jumlah_gagal < 2))
+        <div class="form-modal-backdrop" id="tugaskanModal" data-package-action-modal data-open-on-load="{{ $errors->any() ? 'true' : 'false' }}" aria-hidden="true" hidden>
+            <section class="form-modal-card" role="dialog" aria-modal="true" aria-labelledby="tugaskanModalTitle">
+                <div class="form-modal-header">
+                    <div><h2 id="tugaskanModalTitle">Tugaskan Kurir</h2><p>Pilih kurir untuk mengantarkan paket.</p></div>
+                </div>
+                <form method="POST" action="{{ route('paket.tugaskan', $paket) }}">
+                    @csrf
+                    @error('paket')
+                        <p class="package-form-error">{{ $message }}</p>
+                    @enderror
+                    <div class="form-modal-field">
+                        <label for="idKurir">Pilih Kurir</label>
+                        <select name="id_kurir" id="idKurir" required>
+                            <option value="">Pilih kurir</option>
+                            @foreach ($daftarKurirAktif as $kurir)
+                                <option value="{{ $kurir->id }}" @selected(old('id_kurir') == $kurir->id)>{{ $kurir->kode }} - {{ $kurir->nama }} ({{ $kurir->jumlah_paket_dikirim }} paket Dikirim)</option>
+                            @endforeach
+                        </select>
+                        @error('id_kurir')
+                            <small class="field-error">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    <div class="form-modal-field package-modal-spaced-field">
+                        <label for="catatanTugaskan">Catatan (opsional)</label>
+                        <input type="text" id="catatanTugaskan" name="catatan" value="{{ old('catatan') }}" placeholder="Masukkan catatan">
+                        @error('catatan')
+                            <small class="field-error">{{ $message }}</small>
+                        @enderror
+                    </div>
+                    <div class="form-modal-actions">
+                        <button type="button" class="form-modal-cancel" data-close-package-modal>Batal</button>
+                        <button type="submit" class="form-modal-submit">Tugaskan Kurir</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    @endif
 
-    <p><a href="{{ route('paket.create') }}">Input paket lagi</a> | <a href="{{ route('paket.index') }}">Daftar paket</a></p>
-@endsection
+    {{-- MODAL RETUR --}}
+    @if ($paket->status === 'Gagal Kirim' && $paket->jumlah_gagal >= 2)
+        <div class="form-modal-backdrop" id="returModal" data-package-action-modal data-open-on-load="{{ $errors->any() ? 'true' : 'false' }}" aria-hidden="true" hidden>
+            <section class="form-modal-card" role="dialog" aria-modal="true" aria-labelledby="returModalTitle">
+                <div class="form-modal-header">
+                    <div><h2 id="returModalTitle">Ubah ke Retur</h2><p>Paket sudah gagal dikirim sebanyak dua kali.</p></div>
+                </div>
+                <form method="POST" action="{{ route('paket.retur', $paket) }}">
+                    @csrf
+                    @error('paket')
+                        <p class="package-form-error">{{ $message }}</p>
+                    @enderror
+                    <div class="form-modal-field">
+                        <label for="catatanRetur">Catatan (opsional)</label>
+                        <input type="text" id="catatanRetur" name="catatan" value="{{ old('catatan') }}" placeholder="Masukkan catatan">
+                    </div>
+                    <div class="form-modal-actions">
+                        <button type="button" class="form-modal-cancel" data-close-package-modal>Batal</button>
+                        <button type="submit" class="form-modal-submit">Ubah ke Retur</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    @endif
+    @endsection

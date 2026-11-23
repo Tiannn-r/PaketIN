@@ -1,22 +1,63 @@
+
 @extends('layout.app')
-@section('judul', 'Form Pelanggan')
+
+@section('judul', $pelanggan->exists ? 'Ubah Pelanggan' : 'Tambah Pelanggan')
+
 @section('isi')
-    <h1>{{ $pelanggan->exists ? 'Ubah' : 'Tambah' }} Pelanggan</h1>
+    <div class="form-modal-backdrop">
+        <section class="form-modal-card">
+            <div class="form-modal-header">
+                <div>
+                    <h1>{{ $pelanggan->exists ? 'Ubah Pelanggan' : 'Tambah Pelanggan' }}</h1>
+                    <p>Informasi pelanggan</p>
+                </div>
+            </div>
 
-    <form method="POST" action="{{ $pelanggan->exists ? route('pelanggan.update', $pelanggan) : route('pelanggan.store') }}">
-        @csrf
-        @if ($pelanggan->exists) @method('PUT') @endif
+            <form method="POST" action="{{ $pelanggan->exists ? route('pelanggan.update', $pelanggan) : route('pelanggan.store') }}">
+                @csrf
+                @if ($pelanggan->exists)
+                    @method('PUT')
+                @endif
 
-        <div><label>Nama</label><br>
-            <input type="text" name="nama" value="{{ old('nama', $pelanggan->nama) }}"></div>
-        <div><label>Telepon</label><br>
-            <input type="text" name="telepon" value="{{ old('telepon', $pelanggan->telepon) }}"></div>
-        <div><label>Alamat</label><br>
-            <input type="text" name="alamat" value="{{ old('alamat', $pelanggan->alamat) }}"></div>
-        <div><label>Kota</label><br>
-            <input type="text" name="kota" value="{{ old('kota', $pelanggan->kota) }}"></div>
+                <div class="form-modal-grid">
+                    <div class="form-modal-field">
+                        <label for="nama">Nama</label>
+                        <input type="text" id="nama" name="nama" value="{{ old('nama', $pelanggan->nama) }}" placeholder="Nama pelanggan">
+                        @error('nama')
+                            <small class="field-error">{{ $message }}</small>
+                        @enderror
+                    </div>
 
-        <button type="submit">Simpan</button>
-    </form>
-    <p><a href="{{ route('pelanggan.index') }}">Kembali</a></p>
+                    <div class="form-modal-field">
+                        <label for="telepon">Telepon</label>
+                        <input type="text" id="telepon" name="telepon" value="{{ old('telepon', $pelanggan->telepon) }}" placeholder="Nomor telepon">
+                        @error('telepon')
+                            <small class="field-error">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <div class="form-modal-field">
+                        <label for="alamat">Alamat</label>
+                        <input type="text" id="alamat" name="alamat" value="{{ old('alamat', $pelanggan->alamat) }}" placeholder="Alamat pelanggan">
+                        @error('alamat')
+                            <small class="field-error">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <div class="form-modal-field">
+                        <label for="kota">Kota</label>
+                        <input type="text" id="kota" name="kota" value="{{ old('kota', $pelanggan->kota) }}" placeholder="Kota">
+                        @error('kota')
+                            <small class="field-error">{{ $message }}</small>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="form-modal-actions">
+                    <a href="{{ route('pelanggan.index') }}" class="form-modal-cancel">Batal</a>
+                    <button type="submit" class="form-modal-submit">Simpan</button>
+                </div>
+            </form>
+        </section>
+    </div>
 @endsection

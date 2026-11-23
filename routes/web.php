@@ -48,6 +48,9 @@ Route::middleware('auth')->group(function (){
 
     Route::middleware('role:admin')->group(function (){
 
+        //tarif (baca-saja untuk admin)
+        Route::get('/tarif', [TarifController::class, 'lihat'])->name('tarif.lihat');
+
         //pelanggan
         Route::get('/pelanggan/tambah', [PelangganController::class, 'create'])->name('pelanggan.create');
         Route::post('/pelanggan', [PelangganController::class, 'store'])->name('pelanggan.store');

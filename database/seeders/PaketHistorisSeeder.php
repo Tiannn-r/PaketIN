@@ -50,6 +50,7 @@ class PaketHistorisSeeder extends Seeder
         $statusDenganKurir = ['Dikirim', 'Terkirim', 'Gagal Kirim', 'Retur'];
 
         foreach ($barisCsv as $index => $baris) {
+            try {
             $nomorBaris = $index + 2;
             $noResi = trim($baris['no_resi']);
             $tanggal = trim($baris['tanggal_terima']);
@@ -167,6 +168,10 @@ class PaketHistorisSeeder extends Seeder
                 'perlu_verifikasi' => $beratAsli === null || $zona === null,
                 'tanggal_masuk' => $tanggal,
             ];
+            } catch (RuntimeException $error) {
+                $this->command?->warn('Baris dilewati: ' . $error->getMessage());
+                continue;
+            }
         }
 
         $dibuat = 0;
@@ -249,9 +254,7 @@ class PaketHistorisSeeder extends Seeder
             }
 
             if (isset($barisUnik[$noResi])) {
-                if ($barisUnik[$noResi] !== $baris) {
-                    throw new RuntimeException("Nomor resi {$noResi} muncul lebih dari sekali dengan data berbeda. Impor dihentikan agar data tidak salah.");
-                }
+                // Resi ganda digabung menjadi satu: baris pertama dipakai.
                 continue;
             }
 

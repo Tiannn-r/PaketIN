@@ -13,6 +13,12 @@ class TarifController extends Controller
         return view('manager.tarif.index', compact('daftarTarif'));
     }
 
+    public function lihat()
+    {
+        $daftarTarif = Tarif::orderBy('zona')->get();
+        return view('tarif.lihat', compact('daftarTarif'));
+    }
+
     public function update(Request $request, Tarif $tarif)
     {
         $data = $request->validate(['tarif_per_kg' => 'required|integer|min:1']);
