@@ -1,4 +1,3 @@
-
 @extends('layout.app')
 
 @section('judul', 'Pengaturan Tarif')
@@ -11,7 +10,7 @@
                 <p>Kelola tarif pengiriman berdasarkan zona tujuan.</p>
             </div>
 
-            <a href="{{ route('manager.dashboard') }}" class="customer-add">
+            <a href="{{ route('dashboard') }}" class="customer-add">
                 Kembali
             </a>
         </div>
@@ -46,7 +45,7 @@
                                         data-tarif-zona="{{ $tarif->zona }}"
                                         data-nama-zona="{{ $tarif->nama_zona }}"
                                         data-tarif="{{ $tarif->tarif_per_kg }}"
-                                        data-update-url="{{ route('manager.tarif.update', $tarif->zona) }}"
+                                        data-update-url="{{ request()->user()->role === 'admin' ? route('tarif.update', $tarif->zona) : route('manager.tarif.update', $tarif->zona) }}"
                                     >Ubah Tarif</button>
                                 </td>
                             </tr>
