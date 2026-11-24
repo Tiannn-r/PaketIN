@@ -45,7 +45,7 @@
                                         data-tarif-zona="{{ $tarif->zona }}"
                                         data-nama-zona="{{ $tarif->nama_zona }}"
                                         data-tarif="{{ $tarif->tarif_per_kg }}"
-                                        data-update-url="{{ request()->user()->role === 'admin' ? route('tarif.update', $tarif->zona) : route('manager.tarif.update', $tarif->zona) }}"
+                                        data-update-url="{{route('manager.tarif.update', $tarif->zona) }}"
                                     >Ubah Tarif</button>
                                 </td>
                             </tr>
@@ -87,15 +87,7 @@
 
                 <div class="form-modal-field">
                     <label for="tarifPerKg">Tarif per Kg (Rp)</label>
-                    <input
-                        type="number"
-                        id="tarifPerKg"
-                        name="tarif_per_kg"
-                        value="{{ old('tarif_per_kg') }}"
-                        min="1"
-                        step="1"
-                        required
-                        placeholder="Masukkan tarif"
+                    <input type="number" id="tarifPerKg" name="tarif_per_kg" value="{{ old('tarif_per_kg') }}" min="1" step="1" required placeholder="Masukkan tarif"
                     >
                     @error('tarif_per_kg')
                         <small class="field-error">{{ $message }}</small>

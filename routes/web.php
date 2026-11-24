@@ -47,9 +47,8 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:admin')->group(function () {
-        // Tarif: Admin sekarang dapat melihat dan mengubah tarif.
+
         Route::get('/tarif', [TarifController::class, 'index'])->name('tarif.lihat');
-        Route::put('/tarif/{tarif}', [TarifController::class, 'update'])->name('tarif.update');
 
         // pelanggan
         Route::get('/pelanggan/tambah', [PelangganController::class, 'create'])->name('pelanggan.create');

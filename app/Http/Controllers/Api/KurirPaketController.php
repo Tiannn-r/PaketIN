@@ -18,14 +18,8 @@ class KurirPaketController extends Controller
     public function index(Request $request)
     {
         $validator = Validator::make($request->query(), [
-            'status' => [
-                'nullable',
-                'string',
-                Rule::in([
-                    'Diterima', 'Transit', 'Dikirim',
-                    'Terkirim', 'Gagal Kirim', 'Retur',
-                ]),
-            ],
+            // Endpoint operasional kurir hanya boleh memuat paket Dikirim.
+            'status' => ['nullable', 'string', Rule::in(['Dikirim'])],
             'per_page' => 'nullable|integer|min:1|max:50',
         ]);
 
@@ -38,15 +32,11 @@ class KurirPaketController extends Controller
         }
 
         $filter = $validator->validated();
-        $query = Paket::with('setoran')
+        $daftarPaket = Paket::with('setoran')
             ->where('id_kurir', $request->user()->id)
-            ->orderByDesc('id');
-
-        if (!empty($filter['status'])) {
-            $query->where('status', $filter['status']);
-        }
-
-        $daftarPaket = $query->paginate((int) ($filter['per_page'] ?? 20));
+            ->where('status', 'Dikirim')
+            ->orderByDesc('id')
+            ->paginate((int) ($filter['per_page'] ?? 20));
 
         return response()->json([
             'success' => true,
@@ -67,6 +57,7 @@ class KurirPaketController extends Controller
     {
         $paket = Paket::with(['setoran', 'daftarRiwayat'])
             ->where('id_kurir', $request->user()->id)
+            ->where('status', 'Dikirim')
             ->find($id);
 
         if (!$paket) {
@@ -131,7 +122,7 @@ class KurirPaketController extends Controller
                 'success' => false,
                 'message' => $error->getMessage(),
             ], 422);
-        } catch (ModelNotFoundException) {
+        } catch (ModelNotFoundException $error) {
             return response()->json([
                 'success' => false,
                 'message' => 'Paket tidak ditemukan.',
